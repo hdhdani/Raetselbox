@@ -1,0 +1,631 @@
+@startuml test 
+
+
+
+
+
+/' Objects '/
+
+class Adafruit_APDS9960 {
+	+Adafruit_APDS9960()
+	+~Adafruit_APDS9960()
+	-_hi2c : I2C_HandleTypeDef
+	+colorDataReady() : bool
+	+gestureValid() : bool
+	+getProximityInterrupt() : bool
+	+begin(uint16_t iTimeMS, apds9960AGain_t aGain, uint8_t addr, I2C_HandleTypeDef hi2c, uint8_t adress) : boolean
+	-_config1 : config1
+	-_config2 : config2
+	-_config3 : config3
+	-_control : control
+	-_enable : enable
+	+getADCIntegrationTime() : float
+	-_gconf1 : gconf1
+	-_gconf2 : gconf2
+	-_gconf3 : gconf3
+	-_gconf4 : gconf4
+	-_gpulse : gpulse
+	-_gstatus : gstatus
+	+getADCGain() : int
+	+getProxGain() : int
+	-_pers : pers
+	-_ppulse : ppulse
+	-_status : status
+	+calculateColorTemperature(uint16_t r, uint16_t g, uint16_t b) : uint16_t
+	+calculateLux(uint16_t r, uint16_t g, uint16_t b) : uint16_t
+	-read16(uint8_t reg) : uint16_t
+	-read16R(uint8_t reg) : uint16_t
+	-read32(uint8_t reg) : uint32_t
+	-DCount : uint8_t
+	-LCount : uint8_t
+	-RCount : uint8_t
+	-UCount : uint8_t
+	-_adress : uint8_t
+	-_i2caddr : uint8_t
+	-gestCnt : uint8_t
+	-read(uint8_t reg, uint8_t* buf, uint8_t num) : uint8_t
+	-read8(byte reg) : uint8_t
+	+readGesture() : uint8_t
+	+readProximity() : uint8_t
+	-_i2c_init() : void
+	+clearInterrupt() : void
+	+disableColorInterrupt() : void
+	+disableProximityInterrupt() : void
+	+enable(boolean en) : void
+	+enableColor(boolean en) : void
+	+enableColorInterrupt() : void
+	+enableGesture(boolean en) : void
+	+enableProximity(boolean en) : void
+	+enableProximityInterrupt() : void
+	+getColorData(uint16_t* r, uint16_t* g, uint16_t* b, uint16_t* c) : void
+	+resetCounts() : void
+	+setADCGain(apds9960AGain_t gain) : void
+	+setADCIntegrationTime(uint16_t iTimeMS) : void
+	+setGestureDimensions(uint8_t dims) : void
+	+setGestureFIFOThreshold(uint8_t thresh) : void
+	+setGestureGain(uint8_t gain) : void
+	+setGestureOffset(uint8_t offset_up, uint8_t offset_down, uint8_t offset_left, uint8_t offset_right) : void
+	+setGestureProximityThreshold(uint8_t thresh) : void
+	+setIntLimits(uint16_t l, uint16_t h) : void
+	+setLED(apds9960LedDrive_t drive, apds9960LedBoost_t boost) : void
+	+setProxGain(apds9960PGain_t gain) : void
+	+setProxPulse(apds9960PPulseLen_t pLen, uint8_t pulses) : void
+	+setProximityInterruptThreshold(uint8_t low, uint8_t high, uint8_t persistance) : void
+	-write(uint8_t reg, uint8_t* buf, uint8_t num) : void
+	-write8(byte reg, byte value) : void
+}
+
+
+class Asteroids {
+	+Asteroids(Display& new_disp)
+	+~Asteroids()
+	-disp : Display&
+	-rock_hit : bool
+	-ship_hit : bool
+	-wave_cnt : int
+	-waves_to_win : int
+	+{static} disp_bound_x : static const int
+	+{static} disp_bound_y : static const int
+	-{static} rocks_per_wave : static const int
+	-bullets : std::vector<Bullet>
+	-rocks : std::vector<Rock>
+	-draw(std::vector<std::vector<int>> hitbox) : void
+	+run() : void
+	+set_waves_to_win(int new_waves_to_win) : void
+}
+
+
+class Bullet {
+	+Bullet(int new_angle, int new_position_x, int new_position_y)
+	+~Bullet()
+	+move() : bool
+	-position_x : float
+	-position_y : float
+	-angle : int
+	+get_angle() : int
+	+get_velocity() : int
+	-{static} velocity : static const int
+	+get_hitbox() : std::vector<std::vector<int>>
+}
+
+
+class Display {
+	-font : GFXfont
+	+init(I2C_HandleTypeDef hi2c, uint8_t adress) : HAL_StatusTypeDef
+	+writecmd(uint8_t command) : HAL_StatusTypeDef
+	-Hi2c : I2C_HandleTypeDef
+	-Adress : uint8_t
+	-Displaybuffer : uint8_t
+	+writechar(uint8_t x, uint8_t y, char c) : uint8_t
+	+writechartiny(uint8_t x, uint8_t y, char c) : uint8_t
+	+writestring(uint8_t x, uint8_t y, const char* string) : uint8_t
+	+cleanbuffer() : void
+	+drawHline(uint8_t x, uint8_t y, uint8_t length) : void
+	+drawVline(uint8_t x, uint8_t y, uint8_t length) : void
+	+drawpixel(uint8_t x, uint8_t y) : void
+	+drawrectangle(uint8_t x, uint8_t y, uint8_t length, uint8_t height) : void
+	+line(int x0, int y0, int x1, int y1) : void
+	+setfont(uint8_t font) : void
+	+updatescreen() : void
+	+writedata(uint8_t reg, uint8_t* data, uint16_t count) : void
+}
+
+
+class Farbspiel {
+	+Farbspiel(Adafruit_APDS9960* gesturesenss, Neopixel* neopixel, Display* display, Gameconfig* gameconfig)
+	-fsgesturesens : Adafruit_APDS9960*
+	-fsoleddisplay : Display*
+	-fsgameconfig : Gameconfig*
+	-fsneopixel : Neopixel*
+	-blau : uint16_t
+	-farbtemp : uint16_t
+	-gruen : uint16_t
+	-initblau : uint16_t
+	-initfarbtemp : uint16_t
+	-initgruen : uint16_t
+	-initrot : uint16_t
+	-rot : uint16_t
+	+run() : void
+}
+
+
+class Gameconfig {
+	+get(std::string key) : int
+	+config_map : std::map<std::string, int>
+	+set(std::string key, int value, bool newparam) : uint8_t
+}
+
+
+class Neopixel {
+	-myGPIOx : GPIO_TypeDef*
+	-myGPIO_Pin : uint16_t
+	+getledcount() : uint8_t
+	-myledcounts : uint8_t
+	+clear() : void
+	+init(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, uint8_t ledcounts) : void
+	+set(bool state, uint8_t num_of_leds) : void
+	+setcolor(uint32_t* colors) : void
+}
+
+
+class Rock {
+	+Rock(int new_angle, int new_position_x, int new_position_y)
+	+~Rock()
+	-position_x : float
+	-position_y : float
+	-angle : int
+	-{static} velocity : static const int
+	-{static} offset : static const std::vector<std::vector<int>>
+	+get_hitbox() : std::vector<std::vector<int>>
+	+move() : void
+}
+
+
+class Ship {
+	+Ship(int new_angle, int new_Position_x, int new_Position_y)
+	+~Ship()
+	-position_x : float
+	-position_y : float
+	-angle : int
+	+get_angle() : int
+	+get_position_x() : int
+	+get_position_y() : int
+	-orientation : int
+	-{static} angle_velocity : static const int
+	-{static} velocity : static const int
+	-{static} offsetE : static const std::vector<std::vector<int>>
+	-{static} offsetN : static const std::vector<std::vector<int>>
+	-{static} offsetNE : static const std::vector<std::vector<int>>
+	-{static} offsetNW : static const std::vector<std::vector<int>>
+	-{static} offsetS : static const std::vector<std::vector<int>>
+	-{static} offsetSE : static const std::vector<std::vector<int>>
+	-{static} offsetSW : static const std::vector<std::vector<int>>
+	-{static} offsetW : static const std::vector<std::vector<int>>
+	+get_hitbox() : std::vector<std::vector<int>>
+	+move() : void
+	+orientate() : void
+	+rotate_ccw() : void
+	+rotate_cw() : void
+}
+
+
+class Simonsays {
+	+Simonsays(Neopixel* neopixel, Display* display, Gameconfig* gameconfig)
+	+~Simonsays()
+	-ssoleddisplay : Display*
+	-ssgameconfig : Gameconfig*
+	-ssneopixel : Neopixel*
+	-ledcount : uint32_t
+	-ledanzeige : uint32_t*
+	-button : uint8_t
+	-farbanzahl : uint8_t
+	-runden : uint8_t
+	+run() : void
+}
+
+
+abstract class Spiel {
+	+Spiel(std::string newname)
+	+getname() : std::string
+	-name : std::string
+	+{abstract} run() : void
+}
+
+
+class Spielemanger {
+	+Spielemanger()
+	+~Spielemanger()
+	-spiele : std::vector<Spiel*>
+	+add_game(Spiel* game) : void
+	+start() : void
+}
+
+
+class Tempsens {
+	+init(I2C_HandleTypeDef hi2c, uint8_t adress) : HAL_StatusTypeDef
+	-Hi2c : I2C_HandleTypeDef
+	+readhumidity() : float
+	+readtemp() : float
+	-Adress : uint8_t
+}
+
+
+class Tempspiel {
+	+Tempspiel(Tempsens* tempsensor, Display* display, Gameconfig* gameconfig)
+	-tsoleddisplay : Display*
+	-tsgameconfig : Gameconfig*
+	-tstempsens : Tempsens*
+	-temp : float
+	+run() : void
+}
+
+
+class gesturesens {
+	+init(I2C_HandleTypeDef hi2c, uint8_t adress) : HAL_StatusTypeDef
+	+writecmd(uint8_t command) : HAL_StatusTypeDef
+	-Hi2c : I2C_HandleTypeDef
+	-Adress : uint8_t
+}
+
+
+enum apds9960AGain_t {
+	APDS9960_AGAIN_16X
+	APDS9960_AGAIN_1X
+	APDS9960_AGAIN_4X
+	APDS9960_AGAIN_64X
+}
+
+
+enum apds9960LedBoost_t {
+	APDS9960_LEDBOOST_100PCNT
+	APDS9960_LEDBOOST_150PCNT
+	APDS9960_LEDBOOST_200PCNT
+	APDS9960_LEDBOOST_300PCNT
+}
+
+
+enum apds9960LedDrive_t {
+	APDS9960_LEDDRIVE_100MA
+	APDS9960_LEDDRIVE_12MA
+	APDS9960_LEDDRIVE_25MA
+	APDS9960_LEDDRIVE_50MA
+}
+
+
+enum apds9960PGain_t {
+	APDS9960_PGAIN_1X
+	APDS9960_PGAIN_2X
+	APDS9960_PGAIN_4X
+	APDS9960_PGAIN_8X
+}
+
+
+enum apds9960PPulseLen_t {
+	APDS9960_PPULSELEN_16US
+	APDS9960_PPULSELEN_32US
+	APDS9960_PPULSELEN_4US
+	APDS9960_PPULSELEN_8US
+}
+
+
+enum empty {
+	APDS9960_AICLEAR
+	APDS9960_AIHTH
+	APDS9960_AIHTL
+	APDS9960_AILTH
+	APDS9960_AILTIL
+	APDS9960_ATIME
+	APDS9960_BDATAH
+	APDS9960_BDATAL
+	APDS9960_CDATAH
+	APDS9960_CDATAL
+	APDS9960_CICLEAR
+	APDS9960_CONFIG1
+	APDS9960_CONFIG2
+	APDS9960_CONFIG3
+	APDS9960_CONTROL
+	APDS9960_ENABLE
+	APDS9960_GCONF1
+	APDS9960_GCONF2
+	APDS9960_GCONF3
+	APDS9960_GCONF4
+	APDS9960_GDATAH
+	APDS9960_GDATAL
+	APDS9960_GEXTH
+	APDS9960_GFIFO_D
+	APDS9960_GFIFO_L
+	APDS9960_GFIFO_R
+	APDS9960_GFIFO_U
+	APDS9960_GFLVL
+	APDS9960_GOFFSET_D
+	APDS9960_GOFFSET_L
+	APDS9960_GOFFSET_R
+	APDS9960_GOFFSET_U
+	APDS9960_GPENTH
+	APDS9960_GPULSE
+	APDS9960_GSTATUS
+	APDS9960_ID
+	APDS9960_IFORCE
+	APDS9960_PDATA
+	APDS9960_PERS
+	APDS9960_PICLEAR
+	APDS9960_PIHT
+	APDS9960_PILT
+	APDS9960_POFFSET_DL
+	APDS9960_POFFSET_UR
+	APDS9960_PPULSE
+	APDS9960_RAM
+	APDS9960_RDATAH
+	APDS9960_RDATAL
+	APDS9960_STATUS
+	APDS9960_WTIME
+}
+
+
+enum empty {
+	APDS9960_DIMENSIONS_ALL
+	APDS9960_DIMENSIONS_UP_DOWN
+	APGS9960_DIMENSIONS_LEFT_RIGHT
+}
+
+
+enum empty {
+	APDS9960_GFIFO_1
+	APDS9960_GFIFO_16
+	APDS9960_GFIFO_4
+	APDS9960_GFIFO_8
+}
+
+
+enum empty {
+	APDS9960_GGAIN_1
+	APDS9960_GGAIN_2
+	APDS9960_GGAIN_4
+	APDS9960_GGAIN_8
+}
+
+
+enum empty {
+	APDS9960_GPULSE_16US
+	APDS9960_GPULSE_32US
+	APDS9960_GPULSE_4US
+	APDS9960_GPULSE_8US
+}
+
+
+namespace ::Adafruit_APDS9960 {
+	struct Adafruit_APDS9960::config1 {
+		+WLONG : uint8_t
+		+get() : uint8_t
+	}
+}
+
+
+namespace ::Adafruit_APDS9960 {
+	struct Adafruit_APDS9960::config2 {
+		+CPSIEN : uint8_t
+		+LED_BOOST : uint8_t
+		+PSIEN : uint8_t
+		+get() : uint8_t
+	}
+}
+
+
+namespace ::Adafruit_APDS9960 {
+	struct Adafruit_APDS9960::config3 {
+		+PCMP : uint8_t
+		+PMASK_D : uint8_t
+		+PMASK_L : uint8_t
+		+PMASK_R : uint8_t
+		+PMASK_U : uint8_t
+		+SAI : uint8_t
+		+get() : uint8_t
+	}
+}
+
+
+namespace ::Adafruit_APDS9960 {
+	struct Adafruit_APDS9960::control {
+		+AGAIN : uint8_t
+		+LDRIVE : uint8_t
+		+PGAIN : uint8_t
+		+get() : uint8_t
+	}
+}
+
+
+namespace ::Adafruit_APDS9960 {
+	struct Adafruit_APDS9960::enable {
+		+AEN : uint8_t
+		+AIEN : uint8_t
+		+GEN : uint8_t
+		+PEN : uint8_t
+		+PIEN : uint8_t
+		+PON : uint8_t
+		+WEN : uint8_t
+		+get() : uint8_t
+	}
+}
+
+
+namespace ::Adafruit_APDS9960 {
+	struct Adafruit_APDS9960::gconf1 {
+		+GEXMSK : uint8_t
+		+GEXPERS : uint8_t
+		+GFIFOTH : uint8_t
+		+get() : uint8_t
+	}
+}
+
+
+namespace ::Adafruit_APDS9960 {
+	struct Adafruit_APDS9960::gconf2 {
+		+GGAIN : uint8_t
+		+GLDRIVE : uint8_t
+		+GWTIME : uint8_t
+		+get() : uint8_t
+	}
+}
+
+
+namespace ::Adafruit_APDS9960 {
+	struct Adafruit_APDS9960::gconf3 {
+		+GDIMS : uint8_t
+		+get() : uint8_t
+	}
+}
+
+
+namespace ::Adafruit_APDS9960 {
+	struct Adafruit_APDS9960::gconf4 {
+		+GIEN : uint8_t
+		+GMODE : uint8_t
+		+get() : uint8_t
+		+set(uint8_t data) : void
+	}
+}
+
+
+namespace ::Adafruit_APDS9960 {
+	struct Adafruit_APDS9960::gpulse {
+		+GPLEN : uint8_t
+		+GPULSE : uint8_t
+		+get() : uint8_t
+	}
+}
+
+
+namespace ::Adafruit_APDS9960 {
+	struct Adafruit_APDS9960::gstatus {
+		+GFOV : uint8_t
+		+GVALID : uint8_t
+		+set(uint8_t data) : void
+	}
+}
+
+
+namespace ::Adafruit_APDS9960 {
+	struct Adafruit_APDS9960::pers {
+		+APERS : uint8_t
+		+PPERS : uint8_t
+		+get() : uint8_t
+	}
+}
+
+
+namespace ::Adafruit_APDS9960 {
+	struct Adafruit_APDS9960::ppulse {
+		+PPLEN : uint8_t
+		+PPULSE : uint8_t
+		+get() : uint8_t
+	}
+}
+
+
+namespace ::Adafruit_APDS9960 {
+	struct Adafruit_APDS9960::status {
+		+AINT : uint8_t
+		+AVALID : uint8_t
+		+CPSAT : uint8_t
+		+GINT : uint8_t
+		+PGSAT : uint8_t
+		+PINT : uint8_t
+		+PVALID : uint8_t
+		+set(uint8_t data) : void
+	}
+}
+
+
+struct GFXfont {
+	+glyph : GFXglyph*
+	+first : uint16_t
+	+last : uint16_t
+	+yAdvance : uint8_t
+	+bitmap : uint8_t*
+}
+
+
+struct GFXglyph {
+	+xOffset : int8_t
+	+yOffset : int8_t
+	+bitmapOffset : uint16_t
+	+height : uint8_t
+	+width : uint8_t
+	+xAdvance : uint8_t
+}
+
+
+
+
+
+/' Inheritance relationships '/
+
+.Spiel <|-- .Asteroids
+
+
+.Spiel <|-- .Farbspiel
+
+
+.Spiel <|-- .Simonsays
+
+
+.Spiel <|-- .Tempspiel
+
+
+
+
+
+/' Aggregation relationships '/
+
+.Asteroids *-- .Bullet
+
+
+.Asteroids *-- .Display
+
+
+.Asteroids *-- .Rock
+
+
+.Display *-- .GFXfont
+
+
+.Farbspiel o-- .Adafruit_APDS9960
+
+
+.Farbspiel o-- .Display
+
+
+.Farbspiel o-- .Gameconfig
+
+
+.Farbspiel o-- .Neopixel
+
+
+.GFXfont o-- .GFXglyph
+
+
+.Simonsays o-- .Display
+
+
+.Simonsays o-- .Gameconfig
+
+
+.Simonsays o-- .Neopixel
+
+
+.Spielemanger o-- .Spiel
+
+
+.Tempspiel o-- .Display
+
+
+.Tempspiel o-- .Gameconfig
+
+
+.Tempspiel o-- .Tempsens
+
+
+
+
+
+@enduml

@@ -1,0 +1,253 @@
+@startuml
+
+
+
+
+
+/' Objects '/
+
+class Asteroids {
+	+Asteroids(Display& new_disp)
+	+~Asteroids()
+	-disp : Display&
+	-rock_hit : bool
+	-ship_hit : bool
+	-wave_cnt : int
+	-waves_to_win : int
+	+{static} disp_bound_x : static const int
+	+{static} disp_bound_y : static const int
+	-{static} rocks_per_wave : static const int
+	-bullets : std::vector<Bullet>
+	-rocks : std::vector<Rock>
+	-draw(std::vector<std::vector<int>> hitbox) : void
+	+run() : void
+	+set_waves_to_win(int new_waves_to_win) : void
+}
+
+
+class Bullet {
+	+Bullet(int new_angle, int new_position_x, int new_position_y)
+	+~Bullet()
+	+move() : bool
+	-position_x : float
+	-position_y : float
+	-angle : int
+	+get_angle() : int
+	+get_velocity() : int
+	-{static} velocity : static const int
+	+get_hitbox() : std::vector<std::vector<int>>
+}
+
+
+class Display {
+	-font : GFXfont
+	+init(I2C_HandleTypeDef hi2c, uint8_t adress) : HAL_StatusTypeDef
+	+writecmd(uint8_t command) : HAL_StatusTypeDef
+	-Hi2c : I2C_HandleTypeDef
+	-Adress : uint8_t
+	-Displaybuffer : uint8_t
+	+writechar(uint8_t x, uint8_t y, char c) : uint8_t
+	+writechartiny(uint8_t x, uint8_t y, char c) : uint8_t
+	+writestring(uint8_t x, uint8_t y, const char* string) : uint8_t
+	+cleanbuffer() : void
+	+drawHline(uint8_t x, uint8_t y, uint8_t length) : void
+	+drawVline(uint8_t x, uint8_t y, uint8_t length) : void
+	+drawpixel(uint8_t x, uint8_t y) : void
+	+drawrectangle(uint8_t x, uint8_t y, uint8_t length, uint8_t height) : void
+	+line(int x0, int y0, int x1, int y1) : void
+	+setfont(uint8_t font) : void
+	+updatescreen() : void
+	+writedata(uint8_t reg, uint8_t* data, uint16_t count) : void
+}
+
+
+class Farbspiel {
+	+Farbspiel(Adafruit_APDS9960* gesturesenss, Neopixel* neopixel, Display* display, Gameconfig* gameconfig)
+	-fsgesturesens : Adafruit_APDS9960*
+	-fsoleddisplay : Display*
+	-fsgameconfig : Gameconfig*
+	-fsneopixel : Neopixel*
+	-blau : uint16_t
+	-farbtemp : uint16_t
+	-gruen : uint16_t
+	-initblau : uint16_t
+	-initfarbtemp : uint16_t
+	-initgruen : uint16_t
+	-initrot : uint16_t
+	-rot : uint16_t
+	+run() : void
+}
+
+
+class Gameconfig {
+	+get(std::string key) : int
+	+config_map : std::map<std::string, int>
+	+set(std::string key, int value, bool newparam) : uint8_t
+}
+
+
+class Neopixel {
+	-myGPIOx : GPIO_TypeDef*
+	-myGPIO_Pin : uint16_t
+	+getledcount() : uint8_t
+	-myledcounts : uint8_t
+	+clear() : void
+	+init(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, uint8_t ledcounts) : void
+	+set(bool state, uint8_t num_of_leds) : void
+	+setcolor(uint32_t* colors) : void
+}
+
+
+class Rock {
+	+Rock(int new_angle, int new_position_x, int new_position_y)
+	+~Rock()
+	-position_x : float
+	-position_y : float
+	-angle : int
+	-{static} velocity : static const int
+	-{static} offset : static const std::vector<std::vector<int>>
+	+get_hitbox() : std::vector<std::vector<int>>
+	+move() : void
+}
+
+
+class Ship {
+	+Ship(int new_angle, int new_Position_x, int new_Position_y)
+	+~Ship()
+	-position_x : float
+	-position_y : float
+	-angle : int
+	+get_angle() : int
+	+get_position_x() : int
+	+get_position_y() : int
+	-orientation : int
+	-{static} angle_velocity : static const int
+	-{static} velocity : static const int
+	-{static} offsetE : static const std::vector<std::vector<int>>
+	-{static} offsetN : static const std::vector<std::vector<int>>
+	-{static} offsetNE : static const std::vector<std::vector<int>>
+	-{static} offsetNW : static const std::vector<std::vector<int>>
+	-{static} offsetS : static const std::vector<std::vector<int>>
+	-{static} offsetSE : static const std::vector<std::vector<int>>
+	-{static} offsetSW : static const std::vector<std::vector<int>>
+	-{static} offsetW : static const std::vector<std::vector<int>>
+	+get_hitbox() : std::vector<std::vector<int>>
+	+move() : void
+	+orientate() : void
+	+rotate_ccw() : void
+	+rotate_cw() : void
+}
+
+
+class Simonsays {
+	+Simonsays(Neopixel* neopixel, Display* display, Gameconfig* gameconfig)
+	+~Simonsays()
+	-ssoleddisplay : Display*
+	-ssgameconfig : Gameconfig*
+	-ssneopixel : Neopixel*
+	-ledcount : uint32_t
+	-ledanzeige : uint32_t*
+	-button : uint8_t
+	-farbanzahl : uint8_t
+	-runden : uint8_t
+	+run() : void
+}
+
+
+abstract class Spiel {
+	+Spiel(std::string newname)
+	+getname() : std::string
+	-name : std::string
+	+{abstract} run() : void
+}
+
+
+class Spielemanger {
+	+Spielemanger()
+	+~Spielemanger()
+	-spiele : std::vector<Spiel*>
+	+add_game(Spiel* game) : void
+	+start() : void
+}
+
+
+class Tempspiel {
+	+Tempspiel(Tempsens* tempsensor, Display* display, Gameconfig* gameconfig)
+	-tsoleddisplay : Display*
+	-tsgameconfig : Gameconfig*
+	-tstempsens : Tempsens*
+	-temp : float
+	+run() : void
+}
+
+
+class gesturesens {
+	+init(I2C_HandleTypeDef hi2c, uint8_t adress) : HAL_StatusTypeDef
+	+writecmd(uint8_t command) : HAL_StatusTypeDef
+	-Hi2c : I2C_HandleTypeDef
+	-Adress : uint8_t
+}
+
+
+
+
+
+/' Inheritance relationships '/
+
+Spiel <|-- Asteroids
+
+
+Spiel <|-- Farbspiel
+
+
+Spiel <|-- Simonsays
+
+
+Spiel <|-- Tempspiel
+
+
+
+
+
+/' Aggregation relationships '/
+
+Asteroids *-- Bullet
+
+
+Asteroids *-- Display
+
+
+Asteroids *-- Rock
+
+
+Farbspiel o-- Display
+
+
+Farbspiel o-- Gameconfig
+
+
+Farbspiel o-- Neopixel
+
+
+Simonsays o-- Display
+
+
+Simonsays o-- Gameconfig
+
+
+Simonsays o-- Neopixel
+
+
+Spielemanger o-- Spiel
+
+
+Tempspiel o-- Display
+
+
+Tempspiel o-- Gameconfig
+
+
+
+
+
+@enduml
