@@ -40,6 +40,7 @@
 #include "farbspiel.h"
 #include "asteroids.h"
 #include "usart.h"
+#include "configchange.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -117,18 +118,21 @@ int main(void)
   Neopixel myneopixel;
   myneopixel.init( WS_Pin_GPIO_Port,WS_Pin_Pin, 8);
   Display oleddisplay;
-  oleddisplay.init(hi2c1,0x78/*0x3D*/);
+  oleddisplay.init(hi2c1,/*0x78 */0x3D);
   Tempsens mytempsens;
   mytempsens.init(hi2c1, 0x40);
+  
   Adafruit_APDS9960 gestsens;
    gestsens.begin(10, APDS9960_AGAIN_4X, 0x39,hi2c1,0x39);
    gestsens.enableColor(true);
 
+
+
+ HAL_Delay(10);
+
  /*Konfigurationen für spiel*/
   Gameconfig mygameconfig; 
-  HAL_Delay(10);
-  
-
+ 
   mygameconfig.set( "ssrunden", 10,1);
   mygameconfig.set( "ssfarben", 4,1); 
   mygameconfig.set( "aswaves" ,3 ,1);
@@ -144,49 +148,18 @@ int main(void)
   Asteroids asteroiden(oleddisplay, mygameconfig);
 
   oleddisplay.setfont(2);
-  const char mychar[]= "Press  any   Key";
-  oleddisplay.writestring(0,28,mychar);
+  const char mychar[]= "Press       any Key";
+  oleddisplay.writestring(0,10,mychar);
   oleddisplay.updatescreen();
   buttonstate=getButton();
-  uint8_t uartrec[2];
-  char uartchange[] = "changed config";
-  volatile int test [2];
+ 
+ 
+
   while (!buttonstate) // warte auf taster zum starten 
   {
     buttonstate=getButton();
     //auf uart read warten für konfig 
-
-  HAL_UART_Receive(& huart2 , uartrec, 2, 100);
-
-  if(uartrec[0] == 1)
-  { 
-    mygameconfig.set( "ssrunden", uartrec[1],1);
-    test[0]= uartrec[0];
-    test[1]= uartrec[1];
-  }
-  if(uartrec[0] == 2) 
-  { 
-    mygameconfig.set( "ssfarben",  uartrec[1],1); 
-    test[0]= uartrec[0];
-    test[1]= uartrec[1]; 
-  }
-  if(uartrec[0] == 3)
-  {
-    mygameconfig.set("aswaves",uartrec[1],1);
-    test[0]= uartrec[0];
-    test[1]= uartrec[1];
-  }
-  if(uartrec[0] != 0)
-  {
-    
-    oleddisplay.cleanbuffer();
-    oleddisplay.writestring(1,1,uartchange);
-    oleddisplay.updatescreen();
-  }
-
-
-  uartrec[0] = 0;
-  uartrec[1]=0; 
+    configchange( huart2, &mygameconfig, &oleddisplay); //schauen ob neue Konfig empfangen, ggf. ändern
   }
   
   srand(HAL_GetTick()); // random seed für Zufallsfunktion einstellen -> "Zufall" durch Zeit bis Taster gedrückt wird
@@ -201,6 +174,12 @@ int main(void)
   while(1)
   {   // spiele/ Rätsel starten 
     myspielemanger.start(); 
+
+     oleddisplay.setfont(2);
+  const char mychar2[]= "Gratulation!Du bist ent-kommen!";
+  oleddisplay.writestring(0,10,mychar);
+  oleddisplay.updatescreen();
+
   } //end while 
 
 

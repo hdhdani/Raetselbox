@@ -17,7 +17,8 @@ void Spielemanger::start()
 {   
     for(uint8_t i = 0; i< spiele.size(); i++) 
     {
-        spiele[i]->run();     
+        spiele[i]->run();
+        
     }
 }
 /**

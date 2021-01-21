@@ -47,9 +47,7 @@ void Simonsays::run()
     ssoleddisplay->setfont(2);
     ssoleddisplay->cleanbuffer();
     const char mychar[]= "Simon Says";
-    ssoleddisplay->writestring(0,5,mychar);
-    const char mychar2[]= "Tipp: RGBW";
-    ssoleddisplay->writestring(0,20,mychar2);
+    ssoleddisplay->writestring(0,20,mychar);
     ssoleddisplay->updatescreen();
 
 
@@ -61,7 +59,7 @@ void Simonsays::run()
     int farbanzahl = ssgameconfig->get("ssfarben");
     if ( farbanzahl > 4) farbanzahl = 4;
     if ( farbanzahl ==0) farbanzahl = 1;
-    
+    int failcounter =0;
     volatile bool gamefailed=false;
 
     for (  uint8_t runde = 0; runde < rundenanzahl  ;  runde++) // Zufallsreihenfolge generieren 
@@ -76,7 +74,14 @@ void Simonsays::run()
         {
             gamefailed=false;
             runde=0;
+            failcounter++; 
         } 
+        if(failcounter >5) //Tipp beim 6. mal fehlschlagen anzeigen
+        {
+            const char mychar2[]= "Tipp: RGBW";
+            ssoleddisplay->writestring(0,40,mychar2);
+            ssoleddisplay->updatescreen();
+        }
 
         for (uint8_t j = 0; j < runde+1; j++) // LEDs anzeigen (eine runde)
         {    
@@ -148,6 +153,11 @@ void Simonsays::run()
 
 
 //button= getButton();
+ssoleddisplay->cleanbuffer();
+const char mychar3[]= "Geschafft!";
+ssoleddisplay->writestring(0,20,mychar3);
+ssoleddisplay->updatescreen();
+HAL_Delay(4000);     
 }
 
 

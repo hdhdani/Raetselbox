@@ -41,7 +41,7 @@
 	HAL_StatusTypeDef Display::init(I2C_HandleTypeDef hi2c, uint8_t adress)
 	{
 		this->Hi2c = hi2c;
-		this->Adress = adress ;//<<1; // Adresse, um 1 nach links geshiftet, da 7Bit Adresse
+		this->Adress = adress <<1; // Adresse, um 1 nach links geshiftet, da 7Bit Adresse
 
 		HAL_StatusTypeDef I2cready =HAL_I2C_IsDeviceReady(&this->Hi2c, this->Adress,2,100);
 		this-> font= Picopixel;
@@ -52,6 +52,7 @@
 
 
 		//Display found, Init OLED
+		//setze diverse konfigurationen
 		writecmd(0xAE); //Display off
 
 		writecmd(0x20); //Set Memory Addressing Mode
@@ -104,6 +105,7 @@
      */
 	void Display::updatescreen(void)
 	{
+		writecmd(0x40); //--set start line address 
 		HAL_I2C_Mem_Write(&this->Hi2c, this->Adress,0x40, 1, this->Displaybuffer, 128*8,100);
 	}
 
@@ -120,6 +122,7 @@
 		uint8_t sendreg[256];
 		sendreg[0] = reg;
 		uint8_t i;
+
 		for(i = 0; i < count; i++)  sendreg[i+1] = data[i];
 		HAL_I2C_Master_Transmit(&this->Hi2c, this->Adress, sendreg, count+1, 10);
 	}
@@ -307,7 +310,6 @@
 			this->font = FreeMono9pt7b;
 		}
 	}
-
 
     /**
      * @brief lösche Inhalt aus Buffer

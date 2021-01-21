@@ -23,11 +23,11 @@ Entsrpechend muss eine Farbe, die dem essen entspricht vor den sensor gehalten w
     }
 
 
-    const char startmsg[]= "Ich habe hunger!";
-    const char redmsg[]= "Geb mir eine Erdbeere!";
-    const char greenmsg[]= "Geb mir Salat!";
-    const char bluemsg[]= "Geb mir Heidelbeeren!";
-    const char satt[]= "danke, ich bin satt"; 
+    const char startmsg[]= "Ich habe    hunger!";
+    const char redmsg[]=   "Geb mir     eine Erd-   beere!";
+    const char greenmsg[]= "Geb mir     Salat!";
+    const char bluemsg[]=  "Geb mir     Heidelbeeren!";
+    const char satt[]=     "Danke,      ich bin satt"; 
     uint16_t rotrel, gruenrel, blaurel; 
 
     
